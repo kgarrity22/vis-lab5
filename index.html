@@ -6,12 +6,23 @@
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
     <link rel="stylesheet" type="text/css" href="style.css" />
-    
 
 </head>
 
 <body>
 
+    <label for="group-by">Group By</label>
+    <select id="group-by">
+        <option value="stores">Stores worldwide</option>
+        <option value="revenue">Revenue in billion U.S. dollars</option>
+    </select>
+
+
+    <div class="chart">
+
+    </div>
+   
+    
 
 
 
@@ -25,6 +36,158 @@
 
 </body>
 
+
+<script>
+
+
+    const margin = ({ top: 20, right: 20, bottom: 20, left: 20 })
+    const width = 650 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+
+    let svg = d3.select(".chart").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    const xScale = d3.scaleBand()
+            //.domain(companies)
+            .rangeRound([0, width])
+            .paddingInner(0.1);
+
+    const yScale = d3.scaleLinear()
+            //.domain([0, d3.max(data.map(d => d.stores))])
+            .range([height, 0])
+    
+    const xAxis = d3.axisBottom()
+            .scale(xScale)
+            .ticks(10, "s")
+
+
+    const yAxis = d3.axisLeft()
+            .scale(yScale)
+            .ticks(10, "s")
+
+    
+    svg.append("g")
+        .attr("class", "axis x-axis")
+        .call(xAxis)
+        .attr("transform", `translate(0, ${height})`);
+
+    svg.append("g")
+        .attr("class", "axis y-axis")
+        .call(yAxis)
+        //.attr("transform", `translate(0, ${width})`);
+
+   
+
+    
+
+
+
+
+    function update(data, type) {
+        
+        // Update the scale domains
+        xScale.domain(data.map(d=>d.company));
+
+        yScale.domain([0, d3.max(data.map(d => d[type]))]);
+
+
+        // Implement the enter-update-exit sequence
+        const bars = svg.selectAll('.bar')
+            .data(data)
+            .exit()
+            .remove()
+            
+        
+        
+        bars.enter()
+            .append("rect")
+            .attr("fill", "steelblue")
+            .attr("x", function (d) {
+                console.log("logging x: ", xScale(d.company));
+                // console.log("logging x: ", d.company);
+                return xScale(d.company);
+            })
+            .attr("y", function (d) {
+                return yScale(d[type]);
+            })
+            .attr("height", function (d) {
+                // console.log("D: ", d)
+                // console.log("stores: ", d.stores)
+                return height - yScale(d[type]);
+            })
+            .attr("width", xScale.bandwidth())
+            .exit()
+            .remove()
+
+            svg.append("text")
+            .attr('x', width - 50)
+            .attr('y', height - 30)
+            .text("Company")
+
+
+            svg.append("text")
+            .attr('x', 10)
+            .attr('y', 0)
+            .attr("class", "yax")
+            // add attrs such as alignment-baseline and text-anchor as necessary
+            .text(type);
+
+        
+
+        //update the axes and the axis title
+
+
+
+
+    } // end of update data function 
+
+
+
+
+
+
+    d3.csv('coffee-house-chains.csv', d => {
+        return d3.autoType(d)
+    }).then(data => {
+
+
+        console.log("DATA: ", data);
+    
+
+        let type = document.querySelector("#group-by").value
+        
+        update(data, type)
+
+        console.log("Here: ", type.value)
+        d3.select('#group-by')
+            .on("change", function(d){
+
+                console.log("d: ", d.target.value);
+                d3.selectAll(".bars")
+                    
+                update(data, d.target.value)
+            });
+
+        
+        
+
+        
+
+        
+
+        
+
+
+
+    })//  END OF CSV PARSING
+
+
+
+</script>
 
 
 
