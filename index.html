@@ -96,10 +96,11 @@
 
 
         // Implement the enter-update-exit sequence
-        const bars = svg.selectAll('.bar')
-            .data(data)
-            .exit()
+        const bars = svg.selectAll('rect')
             .remove()
+            .exit()
+            .data(data)
+            
             
         
         
@@ -108,7 +109,7 @@
             .attr("fill", "steelblue")
             .attr("x", function (d) {
                 console.log("logging x: ", xScale(d.company));
-                // console.log("logging x: ", d.company);
+                
                 return xScale(d.company);
             })
             .attr("y", function (d) {
@@ -120,21 +121,24 @@
                 return height - yScale(d[type]);
             })
             .attr("width", xScale.bandwidth())
-            .exit()
+            
+
+    
+        svg.selectAll("text")
             .remove()
-
-            svg.append("text")
-            .attr('x', width - 50)
-            .attr('y', height - 30)
-            .text("Company")
-
-
-            svg.append("text")
+            .exit()
+            
+        svg.append("text")
             .attr('x', 10)
             .attr('y', 0)
             .attr("class", "yax")
             // add attrs such as alignment-baseline and text-anchor as necessary
-            .text(type);
+            .text(type)
+        svg.append("text")
+            .attr('x', width - 50)
+            .attr('y', height - 30)
+            .text("Company")
+            
 
         
 
@@ -165,7 +169,7 @@
         console.log("Here: ", type.value)
         d3.select('#group-by')
             .on("change", function(d){
-
+                type = document.querySelector("#group-by").value
                 console.log("d: ", d.target.value);
                 d3.selectAll(".bars")
                     
