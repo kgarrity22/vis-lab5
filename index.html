@@ -34,7 +34,7 @@
 <script>
 
 
-    const margin = ({ top: 20, right: 20, bottom: 20, left: 20 })
+    const margin = ({ top: 50, right: 40, bottom: 50, left: 40 })
     const width = 650 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
@@ -69,13 +69,7 @@
     svg.append("g")
         .attr("class", "axis y-axis")
         //.attr("transform", `translate(0, ${width})`);
-
    
-    // svg.append("text")
-    //     .attr("class", "y-label")
-    //     .attr("text-anchor", "start")
-    //     .attr("y", -5)
-    //     .attr("x", -margin.left);    
 
     var sort = false;
 
@@ -102,7 +96,9 @@
 
         // Implement the enter-update-exit sequence
         const bars = svg.selectAll('.bars')
-            .data(data)
+            .data(data, function(d){
+                return d.company;
+            })
         
         bars.exit()
             .remove()
@@ -132,6 +128,8 @@
             .attr("fill", "steelblue")
         
         bars.exit()
+            .transition()
+            .duration(2000)
             .remove()
             
         
@@ -139,48 +137,49 @@
     
         //update the axes and the axis title
         
-        
-        svg.select(".x-axis")
-            .transition()
-            .call(xAxis)
-        
-        svg.select(".y-axis")
-            .transition()
-            .call(yAxis)
-        
-        svg.selectAll("text")
-            .exit()
+        svg.select(".y-label")
             .remove()
-            
+            .exit()
+
+    
         svg.append("text")
+            .attr("class", "y-label")
             .attr('x', 10)
-            .attr('y', 0)
+            .attr('y', -5)
             .attr("class", "yax")
-            .text(type)
+            .text(function(type){
+                if (type == "stores") {
+                    return "Stores";
+                } else {
+                    return "Billion USD";
+                }
+            });
 
         svg.append("text")
             .attr('x', width - 50)
-            .attr('y', height - 30)
+            .attr('y', height+30)
             .text("Company")
 
-        
+        xAxis.scale(xScale)
+            .ticks(5, 's');
+
+        yAxis.scale(yScale)
+            .ticks(10, 's');
 
 
-        
-            
+        svg.select('.x-axis')
+            .transition()
+            .duration(1000)
+            .attr('transform', `translate(0, ${height})`)
+            .call(xAxis);
 
-        
-
-        
-
-
+        svg.select('.y-axis')
+            .transition()
+            .duration(1000)
+            .call(yAxis);
 
 
     } // end of update data function 
-
-
-
-
 
 
     d3.csv('coffee-house-chains.csv', d => {
